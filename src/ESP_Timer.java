@@ -6,8 +6,8 @@ public class ESP_Timer {
     void Live_Repeat(Interface x, long delay, long period) {
         TimerTask repeatedTask = new TimerTask() {
             public void run() {
-                x.view();
-                System.out.println("YAAAAAAY");
+                x.Fetch_Data();
+                x.live_data();
             }
         };
         Timer timer = new Timer("Timer");
@@ -17,6 +17,7 @@ public class ESP_Timer {
     void Average_Repeat(Interface x, long delay, long period, Timestamp ts) {
         TimerTask repeatedTask = new TimerTask() {
             public void run() {
+
                 x.Average(ts);
             }
         };
@@ -24,14 +25,15 @@ public class ESP_Timer {
         timer.scheduleAtFixedRate(repeatedTask, delay, period);
     }
 
-    void Main_Repeat(Interface x, long delay, long period) {
+    void Average_every_min(Interface x) {
         TimerTask repeatedTask = new TimerTask() {
             public void run() {
-                x.view();
-                System.out.println("YAAAAAAY");
+                x.Average_Min();
             }
         };
         Timer timer = new Timer("Timer");
-        timer.scheduleAtFixedRate(repeatedTask, delay, period);
+        timer.scheduleAtFixedRate(repeatedTask, 60 * 1000L, 60 * 1000L);
     }
+
+
 }

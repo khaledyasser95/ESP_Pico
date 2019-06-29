@@ -6,6 +6,8 @@ public class Config {
     private String id;
     private Vector value = new Vector();
     private Vector Time_stamps = new Vector();
+    private Vector Aver_min = new Vector();
+    private Vector Aver_min_timestamp = new Vector();
     private String Location;
     private String Min;
     private String Max;
@@ -19,9 +21,21 @@ public class Config {
         this.checked = checked;
     }
 
-    public Config(Vector value, Vector time_stamps) {
-        this.value = value;
-        Time_stamps = time_stamps;
+
+    public Vector getAver_min() {
+        return Aver_min;
+    }
+
+    public void setAver_min(Object aver_min) {
+        Aver_min.add(aver_min);
+    }
+
+    public Vector getAver_min_timestamp() {
+        return Aver_min_timestamp;
+    }
+
+    public void setAver_min_timestamp(Object aver_min_timestamp) {
+        Aver_min_timestamp.add(aver_min_timestamp);
     }
 
     public void add_value(Object e) {

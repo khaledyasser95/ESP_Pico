@@ -5,7 +5,6 @@ public class Run {
         //1. Create the frame.
         JFrame frame = new JFrame("Menu");
         frame.setContentPane(new Interface().rootPanel);
-        // frame.setSize(1000,1150);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.pack();
         frame.setResizable(true);
