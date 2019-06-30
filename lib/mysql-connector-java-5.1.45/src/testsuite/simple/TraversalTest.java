@@ -23,11 +23,11 @@
 
 package testsuite.simple;
 
+import testsuite.BaseTestCase;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-
-import testsuite.BaseTestCase;
 
 /**
  * Tests result set traversal methods.
@@ -36,7 +36,7 @@ public class TraversalTest extends BaseTestCase {
 
     /**
      * Creates a new TraversalTest object.
-     * 
+     *
      * @param name
      */
     public TraversalTest(String name) {
@@ -45,7 +45,7 @@ public class TraversalTest extends BaseTestCase {
 
     /**
      * Runs all test cases in this test suite
-     * 
+     *
      * @param args
      */
     public static void main(String[] args) {

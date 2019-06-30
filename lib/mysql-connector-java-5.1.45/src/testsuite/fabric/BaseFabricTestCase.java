@@ -24,7 +24,6 @@
 package testsuite.fabric;
 
 import com.mysql.fabric.jdbc.FabricMySQLDataSource;
-
 import junit.framework.TestCase;
 
 public abstract class BaseFabricTestCase extends TestCase {

@@ -23,19 +23,12 @@
 
 package testsuite.simple;
 
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.ParameterMetaData;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
-import java.sql.Types;
-import java.util.Properties;
-
 import com.mysql.jdbc.SQLError;
 import com.mysql.jdbc.log.StandardLogger;
-
 import testsuite.BaseTestCase;
+
+import java.sql.*;
+import java.util.Properties;
 
 /**
  * Tests callable statement functionality.
@@ -46,10 +39,18 @@ public class CallableStatementTest extends BaseTestCase {
     }
 
     /**
+     * Runs all test cases in this test suite
+     *
+     * @param args
+     */
+    public static void main(String[] args) {
+        junit.textui.TestRunner.run(CallableStatementTest.class);
+    }
+
+    /**
      * Tests functioning of inout parameters
-     * 
-     * @throws Exception
-     *             if the test fails
+     *
+     * @throws Exception if the test fails
      */
 
     public void testInOutParams() throws Exception {
@@ -135,9 +136,8 @@ public class CallableStatementTest extends BaseTestCase {
 
     /**
      * Tests functioning of output parameters.
-     * 
-     * @throws Exception
-     *             if the test fails.
+     *
+     * @throws Exception if the test fails.
      */
     public void testOutParams() throws Exception {
         if (versionMeetsMinimum(5, 0)) {
@@ -205,9 +205,8 @@ public class CallableStatementTest extends BaseTestCase {
 
     /**
      * Tests functioning of output parameters.
-     * 
-     * @throws Exception
-     *             if the test fails.
+     *
+     * @throws Exception if the test fails.
      */
     public void testResultSet() throws Exception {
         if (versionMeetsMinimum(5, 0)) {
@@ -264,9 +263,8 @@ public class CallableStatementTest extends BaseTestCase {
 
     /**
      * Tests parsing of stored procedures
-     * 
-     * @throws Exception
-     *             if an error occurs.
+     *
+     * @throws Exception if an error occurs.
      */
     public void testSPParse() throws Exception {
 
@@ -284,9 +282,8 @@ public class CallableStatementTest extends BaseTestCase {
 
     /**
      * Tests parsing/execution of stored procedures with no parameters...
-     * 
-     * @throws Exception
-     *             if an error occurs.
+     *
+     * @throws Exception if an error occurs.
      */
     public void testSPNoParams() throws Exception {
 
@@ -304,9 +301,8 @@ public class CallableStatementTest extends BaseTestCase {
 
     /**
      * Tests parsing of stored procedures
-     * 
-     * @throws Exception
-     *             if an error occurs.
+     *
+     * @throws Exception if an error occurs.
      */
     public void testSPCache() throws Exception {
         if (versionMeetsMinimum(5, 0)) {
@@ -396,18 +392,9 @@ public class CallableStatementTest extends BaseTestCase {
     }
 
     /**
-     * Runs all test cases in this test suite
-     * 
-     * @param args
-     */
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(CallableStatementTest.class);
-    }
-
-    /**
      * Tests the new parameter parser that doesn't require "BEGIN" or "\n" at
      * end of parameter declaration
-     * 
+     *
      * @throws Exception
      */
     public void testParameterParser() throws Exception {

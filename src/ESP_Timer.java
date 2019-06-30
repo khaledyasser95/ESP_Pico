@@ -18,7 +18,7 @@ public class ESP_Timer {
         TimerTask repeatedTask = new TimerTask() {
             public void run() {
 
-                x.Average(ts);
+                ;
             }
         };
         Timer timer = new Timer("Timer");

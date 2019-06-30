@@ -23,23 +23,13 @@
 
 package testsuite.regression;
 
+import testsuite.BaseTestCase;
+
 import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadInfo;
 import java.lang.management.ThreadMXBean;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
-import java.util.List;
-import java.util.Properties;
-
-import testsuite.BaseTestCase;
+import java.sql.*;
+import java.util.*;
 
 /**
  * Tests for multi-thread stress regressions.
@@ -49,9 +39,8 @@ public class StressRegressionTest extends BaseTestCase {
 
     /**
      * Creates a new StressRegressionTest
-     * 
-     * @param name
-     *            the name of the test.
+     *
+     * @param name the name of the test.
      */
     public StressRegressionTest(String name) {
         super(name);
@@ -59,7 +48,7 @@ public class StressRegressionTest extends BaseTestCase {
 
     /**
      * Runs all test cases in this test suite
-     * 
+     *
      * @param args
      */
     public static void main(String[] args) {
@@ -94,7 +83,7 @@ public class StressRegressionTest extends BaseTestCase {
                 threads[i].start();
             }
 
-            for (;;) {
+            for (; ; ) {
                 try {
                     wait();
 
@@ -188,139 +177,19 @@ public class StressRegressionTest extends BaseTestCase {
         notify();
     }
 
-    public class BusyThread extends Thread {
-        boolean stop = false;
-
-        @Override
-        public void run() {
-            boolean doStop = this.stop;
-            while (!doStop) {
-                doStop = this.stop;
-            }
-        }
-    }
-
-    class ContentionThread extends Thread {
-        Connection threadConn;
-
-        Statement threadStmt;
-
-        int threadNumber;
-
-        long elapsedTimeMillis;
-
-        public ContentionThread(int num) throws SQLException {
-            this.threadNumber = num;
-            this.threadConn = getConnectionWithProps(new Properties());
-            this.threadStmt = this.threadConn.createStatement();
-
-            System.out.println(this.threadConn);
-        }
-
-        @Override
-        public void run() {
-            long start = System.currentTimeMillis();
-
-            try {
-                contentiousWork(this.threadConn, this.threadStmt, this.threadNumber);
-                this.elapsedTimeMillis = System.currentTimeMillis() - start;
-
-                System.out.println("Thread " + this.threadNumber + " finished.");
-            } finally {
-                if (this.elapsedTimeMillis == 0) {
-                    this.elapsedTimeMillis = System.currentTimeMillis() - start;
-                }
-
-                reportDone();
-
-                try {
-                    this.threadStmt.close();
-                    this.threadConn.close();
-                } catch (SQLException ex) {
-                    // ignore
-                }
-            }
-        }
-    }
-
-    class CreateThread extends Thread {
-        BusyThread busyThread;
-
-        int numConnections = 15;
-
-        public CreateThread() {
-        }
-
-        public CreateThread(BusyThread toStop) {
-            this.busyThread = toStop;
-        }
-
-        public CreateThread(int numConns) {
-            this.numConnections = numConns;
-        }
-
-        @Override
-        public void run() {
-            try {
-                Connection[] connList = new Connection[this.numConnections];
-
-                long maxConnTime = Long.MIN_VALUE;
-                long minConnTime = Long.MAX_VALUE;
-                double averageTime = 0;
-
-                Properties nullProps = new Properties();
-
-                if (this.busyThread != null) {
-                    this.busyThread.start();
-                }
-
-                for (int i = 0; i < this.numConnections; i++) {
-                    long startTime = System.currentTimeMillis();
-                    connList[i] = getConnectionWithProps(nullProps);
-
-                    long endTime = System.currentTimeMillis();
-                    long ellapsedTime = endTime - startTime;
-
-                    if (ellapsedTime < minConnTime) {
-                        minConnTime = ellapsedTime;
-                    }
-
-                    if (ellapsedTime > maxConnTime) {
-                        maxConnTime = ellapsedTime;
-                    }
-
-                    averageTime += ((double) ellapsedTime / this.numConnections);
-                }
-
-                if (this.busyThread != null) {
-                    this.busyThread.stop = true;
-                }
-
-                for (int i = 0; i < this.numConnections; i++) {
-                    connList[i].close();
-                }
-
-                System.out.println(minConnTime + "/" + maxConnTime + "/" + averageTime);
-            } catch (Exception ex) {
-                throw new RuntimeException(ex);
-            }
-        }
-    }
-
     /**
      * Tests fix for BUG#67760 - Deadlock when concurrently executing prepared statements with Timestamp objects
-     * 
+     * <p>
      * Concurrent execution of Timestamp, Date and Time related setters and getters from a PreparedStatement and ResultSet object obtained from a same shared
      * Connection may result in a deadlock.
-     * 
+     * <p>
      * This test exploits a non-deterministic situation that can end in a deadlock. It executes two concurrent jobs for 10 seconds while stressing the referred
      * methods. The deadlock was observed before 3 seconds have elapsed, all times, in development environment.
-     * 
+     * <p>
      * WARNING! If this test fails there is no guarantee that the JVM will remain stable and won't affect any other tests. It is imperative that this test
      * passes to ensure other tests results.
-     * 
-     * @throws Exception
-     *             if the test fails.
+     *
+     * @throws Exception if the test fails.
      */
     public void testBug67760() throws Exception {
         /*
@@ -473,6 +342,125 @@ public class StressRegressionTest extends BaseTestCase {
             prevJob1Iterations = job1Iterations;
             prevJob2Iterations = job2Iterations;
             return iterationsChanged;
+        }
+    }
+
+    public class BusyThread extends Thread {
+        boolean stop = false;
+
+        @Override
+        public void run() {
+            boolean doStop = this.stop;
+            while (!doStop) {
+                doStop = this.stop;
+            }
+        }
+    }
+
+    class ContentionThread extends Thread {
+        Connection threadConn;
+
+        Statement threadStmt;
+
+        int threadNumber;
+
+        long elapsedTimeMillis;
+
+        public ContentionThread(int num) throws SQLException {
+            this.threadNumber = num;
+            this.threadConn = getConnectionWithProps(new Properties());
+            this.threadStmt = this.threadConn.createStatement();
+
+            System.out.println(this.threadConn);
+        }
+
+        @Override
+        public void run() {
+            long start = System.currentTimeMillis();
+
+            try {
+                contentiousWork(this.threadConn, this.threadStmt, this.threadNumber);
+                this.elapsedTimeMillis = System.currentTimeMillis() - start;
+
+                System.out.println("Thread " + this.threadNumber + " finished.");
+            } finally {
+                if (this.elapsedTimeMillis == 0) {
+                    this.elapsedTimeMillis = System.currentTimeMillis() - start;
+                }
+
+                reportDone();
+
+                try {
+                    this.threadStmt.close();
+                    this.threadConn.close();
+                } catch (SQLException ex) {
+                    // ignore
+                }
+            }
+        }
+    }
+
+    class CreateThread extends Thread {
+        BusyThread busyThread;
+
+        int numConnections = 15;
+
+        public CreateThread() {
+        }
+
+        public CreateThread(BusyThread toStop) {
+            this.busyThread = toStop;
+        }
+
+        public CreateThread(int numConns) {
+            this.numConnections = numConns;
+        }
+
+        @Override
+        public void run() {
+            try {
+                Connection[] connList = new Connection[this.numConnections];
+
+                long maxConnTime = Long.MIN_VALUE;
+                long minConnTime = Long.MAX_VALUE;
+                double averageTime = 0;
+
+                Properties nullProps = new Properties();
+
+                if (this.busyThread != null) {
+                    this.busyThread.start();
+                }
+
+                for (int i = 0; i < this.numConnections; i++) {
+                    long startTime = System.currentTimeMillis();
+                    connList[i] = getConnectionWithProps(nullProps);
+
+                    long endTime = System.currentTimeMillis();
+                    long ellapsedTime = endTime - startTime;
+
+                    if (ellapsedTime < minConnTime) {
+                        minConnTime = ellapsedTime;
+                    }
+
+                    if (ellapsedTime > maxConnTime) {
+                        maxConnTime = ellapsedTime;
+                    }
+
+                    averageTime += ((double) ellapsedTime / this.numConnections);
+                }
+
+                if (this.busyThread != null) {
+                    this.busyThread.stop = true;
+                }
+
+                for (int i = 0; i < this.numConnections; i++) {
+                    connList[i].close();
+                }
+
+                System.out.println(minConnTime + "/" + maxConnTime + "/" + averageTime);
+            } catch (Exception ex) {
+                throw new RuntimeException(ex);
+            }
         }
     }
 }

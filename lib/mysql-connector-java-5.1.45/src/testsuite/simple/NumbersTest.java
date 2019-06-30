@@ -23,16 +23,16 @@
 
 package testsuite.simple;
 
-import java.sql.SQLException;
-
 import testsuite.BaseTestCase;
+
+import java.sql.SQLException;
 
 public class NumbersTest extends BaseTestCase {
     private static final long TEST_BIGINT_VALUE = 6147483647L;
 
     /**
      * Creates a new NumbersTest object.
-     * 
+     *
      * @param name
      */
     public NumbersTest(String name) {
@@ -41,7 +41,7 @@ public class NumbersTest extends BaseTestCase {
 
     /**
      * Runs all test cases in this test suite
-     * 
+     *
      * @param args
      */
     public static void main(String[] args) {

@@ -23,11 +23,11 @@
 
 package testsuite.simple;
 
+import com.mysql.jdbc.ConnectionLifecycleInterceptor;
+
 import java.sql.SQLException;
 import java.sql.Savepoint;
 import java.util.Properties;
-
-import com.mysql.jdbc.ConnectionLifecycleInterceptor;
 
 public class TestLifecycleInterceptor implements ConnectionLifecycleInterceptor {
     static int transactionsBegun = 0;

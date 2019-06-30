@@ -1,3 +1,4 @@
+import javax.swing.*;
 import java.sql.Connection;
 import java.sql.DriverManager;
 
@@ -12,6 +13,7 @@ public class JConnection {
             return conn;
         } catch (Exception e) {
             connected = false;
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             return null;
         }
     }

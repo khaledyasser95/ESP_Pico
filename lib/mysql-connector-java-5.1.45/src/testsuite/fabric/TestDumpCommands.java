@@ -23,39 +23,18 @@
 
 package testsuite.fabric;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
-
-import com.mysql.fabric.Server;
-import com.mysql.fabric.ServerGroup;
-import com.mysql.fabric.ServerMode;
-import com.mysql.fabric.ServerRole;
-import com.mysql.fabric.ShardMapping;
+import com.mysql.fabric.*;
 import com.mysql.fabric.proto.xmlrpc.XmlRpcClient;
+
+import java.util.*;
 
 /**
  * Tests for `mysqlfabric dump.*'.
- * 
+ * <p>
  * Depends on standard Fabric test setup (which as of yet is not defined).
  * Updates to this test setup will require changes to the tests.
  */
 public class TestDumpCommands extends BaseFabricTestCase {
-
-    private XmlRpcClient client;
-
-    public TestDumpCommands() throws Exception {
-        super();
-    }
-
-    @Override
-    public void setUp() throws Exception {
-        if (this.isSetForFabricTest) {
-            this.client = new XmlRpcClient(this.fabricUrl, this.fabricUsername, this.fabricPassword);
-        }
-    }
 
     public static Comparator<Server> serverHostnamePortSorter = new Comparator<Server>() {
         public int compare(Server s1, Server s2) {
@@ -69,6 +48,18 @@ public class TestDumpCommands extends BaseFabricTestCase {
             return l;
         }
     };
+    private XmlRpcClient client;
+
+    public TestDumpCommands() throws Exception {
+        super();
+    }
+
+    @Override
+    public void setUp() throws Exception {
+        if (this.isSetForFabricTest) {
+            this.client = new XmlRpcClient(this.fabricUrl, this.fabricUsername, this.fabricPassword);
+        }
+    }
 
     /**
      * Test the Client.getServers() without a match pattern (all servers).

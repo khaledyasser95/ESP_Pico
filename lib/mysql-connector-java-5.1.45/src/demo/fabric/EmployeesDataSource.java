@@ -23,13 +23,13 @@
 
 package demo.fabric;
 
+import com.mysql.fabric.jdbc.FabricMySQLConnection;
+import com.mysql.fabric.jdbc.FabricMySQLDataSource;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
-
-import com.mysql.fabric.jdbc.FabricMySQLConnection;
-import com.mysql.fabric.jdbc.FabricMySQLDataSource;
 
 /**
  * Demonstrate working with employee data in MySQL Fabric with Connector/J and the JDBC APIs via a DataSource-created connection.
@@ -94,9 +94,9 @@ public class EmployeesDataSource {
         FabricMySQLConnection connection = (FabricMySQLConnection) rawConnection;
 
         // example data used to create employee records
-        Integer ids[] = new Integer[] { 1, 2, 10001, 10002 };
-        String firstNames[] = new String[] { "John", "Jane", "Andy", "Alice" };
-        String lastNames[] = new String[] { "Doe", "Doe", "Wiley", "Wein" };
+        Integer ids[] = new Integer[]{1, 2, 10001, 10002};
+        String firstNames[] = new String[]{"John", "Jane", "Andy", "Alice"};
+        String lastNames[] = new String[]{"Doe", "Doe", "Wiley", "Wein"};
 
         // insert employee data
         PreparedStatement ps = connection.prepareStatement("INSERT INTO employees.employees VALUES (?,?,?)");

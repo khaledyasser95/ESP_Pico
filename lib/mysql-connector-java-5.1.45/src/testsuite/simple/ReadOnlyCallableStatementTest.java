@@ -23,12 +23,12 @@
 
 package testsuite.simple;
 
+import testsuite.BaseTestCase;
+
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Properties;
-
-import testsuite.BaseTestCase;
 
 public class ReadOnlyCallableStatementTest extends BaseTestCase {
     public ReadOnlyCallableStatementTest(String name) {

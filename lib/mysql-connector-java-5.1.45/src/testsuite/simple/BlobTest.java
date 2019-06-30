@@ -23,22 +23,17 @@
 
 package testsuite.simple;
 
-import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.sql.Connection;
-
 import testsuite.BaseTestCase;
+
+import java.io.*;
+import java.sql.Connection;
 
 /**
  * Tests BLOB functionality in the driver.
  */
 public class BlobTest extends BaseTestCase {
 
+    private final static String TEST_BLOB_FILE_PREFIX = "cmj-testblob";
     protected static File testBlobFile;
 
     static {
@@ -59,9 +54,8 @@ public class BlobTest extends BaseTestCase {
 
     /**
      * Creates a new BlobTest object.
-     * 
-     * @param name
-     *            the test to run
+     *
+     * @param name the test to run
      */
     public BlobTest(String name) {
         super(name);
@@ -69,7 +63,7 @@ public class BlobTest extends BaseTestCase {
 
     /**
      * Runs all test cases in this test suite
-     * 
+     *
      * @param args
      */
     public static void main(String[] args) {
@@ -78,9 +72,8 @@ public class BlobTest extends BaseTestCase {
 
     /**
      * Setup the test case
-     * 
-     * @throws Exception
-     *             if an error occurs
+     *
+     * @throws Exception if an error occurs
      */
     @Override
     public void setUp() throws Exception {
@@ -124,9 +117,8 @@ public class BlobTest extends BaseTestCase {
 
     /**
      * Tests inserting blob data as a stream
-     * 
-     * @throws Exception
-     *             if an error occurs
+     *
+     * @throws Exception if an error occurs
      */
     private void testByteStreamInsert(Connection c) throws Exception {
         BufferedInputStream bIn = new BufferedInputStream(new FileInputStream(testBlobFile));
@@ -180,11 +172,9 @@ public class BlobTest extends BaseTestCase {
 
     /**
      * Mark this as deprecated to avoid warnings from compiler...
-     * 
+     *
+     * @throws Exception if an error occurs retrieving the value
      * @deprecated
-     * 
-     * @throws Exception
-     *             if an error occurs retrieving the value
      */
     @Deprecated
     private void doRetrieval() throws Exception {
@@ -231,8 +221,6 @@ public class BlobTest extends BaseTestCase {
         passed = checkBlob(retrBytes);
         assertTrue("Inserted BLOB data did not match retrieved BLOB data for getUnicodeStream().", passed);
     }
-
-    private final static String TEST_BLOB_FILE_PREFIX = "cmj-testblob";
 
     private void createBlobFile(int size) throws Exception {
         if (testBlobFile != null && testBlobFile.length() != size) {

@@ -23,13 +23,10 @@
 
 package testsuite.simple;
 
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Time;
-import java.sql.Timestamp;
+import com.mysql.jdbc.SQLError;
+import testsuite.BaseTestCase;
+
+import java.sql.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -37,14 +34,10 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.TimeZone;
 
-import com.mysql.jdbc.SQLError;
-
-import testsuite.BaseTestCase;
-
 public class DateTest extends BaseTestCase {
     /**
      * Creates a new DateTest object.
-     * 
+     *
      * @param name
      */
     public DateTest(String name) {
@@ -53,7 +46,7 @@ public class DateTest extends BaseTestCase {
 
     /**
      * Runs all test cases in this test suite
-     * 
+     *
      * @param args
      */
     public static void main(String[] args) {
@@ -169,9 +162,8 @@ public class DateTest extends BaseTestCase {
 
     /**
      * Tests the configurability of all-zero date/datetime/timestamp handling in the driver.
-     * 
-     * @throws Exception
-     *             if the test fails.
+     *
+     * @throws Exception if the test fails.
      */
     public void testZeroDateBehavior() throws Exception {
         Connection testConn = this.conn;

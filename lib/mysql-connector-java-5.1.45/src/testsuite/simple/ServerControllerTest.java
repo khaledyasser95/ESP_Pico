@@ -24,7 +24,6 @@
 package testsuite.simple;
 
 import com.mysql.jdbc.util.ServerController;
-
 import testsuite.BaseTestCase;
 
 /**
@@ -36,9 +35,8 @@ public class ServerControllerTest extends BaseTestCase {
 
     /**
      * Creates a ServerControllerTest testcase.
-     * 
-     * @param name
-     *            the name of the test to run.
+     *
+     * @param name the name of the test to run.
      */
     public ServerControllerTest(String name) {
         super(name);
@@ -48,7 +46,7 @@ public class ServerControllerTest extends BaseTestCase {
 
     /**
      * Runs all test cases in this test suite
-     * 
+     *
      * @param args
      */
     public static void main(String[] args) {
@@ -57,12 +55,11 @@ public class ServerControllerTest extends BaseTestCase {
 
     /**
      * Demonstrates usage of the ServerController class.
-     * 
+     * <p>
      * This test is only run if the property
      * 'com.mysql.jdbc.test.ServerController.basedir' is set.
-     * 
-     * @throws Exception
-     *             if an error occurs.
+     *
+     * @throws Exception if an error occurs.
      */
     public void testServerController() throws Exception {
 

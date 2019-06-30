@@ -24,7 +24,6 @@
 package testsuite.simple;
 
 import com.mysql.jdbc.MiniAdmin;
-
 import testsuite.BaseTestCase;
 
 /**
@@ -38,9 +37,8 @@ public class MiniAdminTest extends BaseTestCase {
 
     /**
      * Creates a new test case
-     * 
-     * @param name
-     *            the test to run
+     *
+     * @param name the test to run
      */
     public MiniAdminTest(String name) {
         super(name);
@@ -48,7 +46,7 @@ public class MiniAdminTest extends BaseTestCase {
 
     /**
      * Runs all test cases in this test suite
-     * 
+     *
      * @param args
      */
     public static void main(String[] args) {
@@ -57,11 +55,10 @@ public class MiniAdminTest extends BaseTestCase {
 
     /**
      * Tests whether or not you can shutdown the server with MiniAdmin.
-     * 
+     * <p>
      * Only runs if SHUTDOWN_PROP is defined.
-     * 
-     * @throws Exception
-     *             if an error occurs
+     *
+     * @throws Exception if an error occurs
      */
     public void testShutdown() throws Exception {
         if (runTestIfSysPropDefined(SHUTDOWN_PROP)) {
@@ -71,9 +68,8 @@ public class MiniAdminTest extends BaseTestCase {
 
     /**
      * Tests whether or not you can construct a MiniAdmin with a JDBC URL.
-     * 
-     * @throws Exception
-     *             if an error occurs
+     *
+     * @throws Exception if an error occurs
      */
     public void testUrlConstructor() throws Exception {
         new MiniAdmin(dbUrl);

@@ -23,39 +23,18 @@
 
 package testsuite.simple;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.CharArrayReader;
-import java.io.InputStream;
-import java.io.Reader;
-import java.io.StringReader;
-import java.math.BigDecimal;
-import java.sql.BatchUpdateException;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Time;
-import java.sql.Timestamp;
-import java.sql.Types;
-import java.text.SimpleDateFormat;
-import java.util.Locale;
-import java.util.Properties;
-
-import com.mysql.jdbc.CharsetMapping;
-import com.mysql.jdbc.MySQLConnection;
-import com.mysql.jdbc.NotImplemented;
-import com.mysql.jdbc.ParameterBindings;
-import com.mysql.jdbc.SQLError;
-import com.mysql.jdbc.StringUtils;
+import com.mysql.jdbc.*;
 import com.mysql.jdbc.exceptions.MySQLStatementCancelledException;
 import com.mysql.jdbc.exceptions.MySQLTimeoutException;
 import com.mysql.jdbc.interceptors.ServerStatusDiffInterceptor;
-
 import testsuite.BaseTestCase;
+
+import java.io.*;
+import java.math.BigDecimal;
+import java.sql.*;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
+import java.util.Properties;
 
 public class StatementsTest extends BaseTestCase {
     private static final int MAX_COLUMN_LENGTH = 255;
@@ -65,21 +44,21 @@ public class StatementsTest extends BaseTestCase {
     private static final int STEP = 8;
 
     /**
-     * Runs all test cases in this test suite
-     * 
-     * @param args
-     */
-    public static void main(String[] args) {
-        junit.textui.TestRunner.run(StatementsTest.class);
-    }
-
-    /**
      * Creates a new StatementsTest object.
-     * 
+     *
      * @param name
      */
     public StatementsTest(String name) {
         super(name);
+    }
+
+    /**
+     * Runs all test cases in this test suite
+     *
+     * @param args
+     */
+    public static void main(String[] args) {
+        junit.textui.TestRunner.run(StatementsTest.class);
     }
 
     @Override
@@ -297,7 +276,7 @@ public class StatementsTest extends BaseTestCase {
     /**
      * Tests all variants of numerical types (signed/unsigned) for correct
      * operation when used as return values from a prepared statement.
-     * 
+     *
      * @throws Exception
      */
     public void testBinaryResultSetNumericTypes() throws Exception {
@@ -397,9 +376,8 @@ public class StatementsTest extends BaseTestCase {
 
     /**
      * Tests stored procedure functionality
-     * 
-     * @throws Exception
-     *             if an error occurs.
+     *
+     * @throws Exception if an error occurs.
      */
     public void testCallableStatement() throws Exception {
         if (versionMeetsMinimum(5, 0)) {
@@ -915,7 +893,7 @@ public class StatementsTest extends BaseTestCase {
 
     /**
      * Tests multiple statement support
-     * 
+     *
      * @throws Exception
      */
     public void testMultiStatements() throws Exception {
@@ -977,9 +955,8 @@ public class StatementsTest extends BaseTestCase {
 
     /**
      * Tests that NULLs and '' work correctly.
-     * 
-     * @throws SQLException
-     *             if an error occurs
+     *
+     * @throws SQLException if an error occurs
      */
     public void testNulls() throws SQLException {
         try {
@@ -1128,7 +1105,7 @@ public class StatementsTest extends BaseTestCase {
 
     /**
      * Tests for PreparedStatement.setObject()
-     * 
+     *
      * @throws Exception
      */
     public void testSetObject() throws Exception {
@@ -1151,7 +1128,7 @@ public class StatementsTest extends BaseTestCase {
 
         this.pstmt.setObject(1, "1000", Types.DECIMAL);
         this.pstmt.setObject(2, "2000", Types.VARCHAR);
-        this.pstmt.setObject(3, new byte[] { 0 }, Types.BLOB);
+        this.pstmt.setObject(3, new byte[]{0}, Types.BLOB);
         this.pstmt.setObject(4, new java.util.Date(currentTime), Types.DATE);
         this.pstmt.setObject(5, "2000-01-01 23-59-59", Types.TIMESTAMP);
         this.pstmt.setObject(6, "11:22:33", Types.TIME);
@@ -1290,7 +1267,7 @@ public class StatementsTest extends BaseTestCase {
                     "(internalOrder int, f1 tinyint null, " + "f2 smallint null, f3 int null, f4 bigint null, "
                             + "f5 decimal(8, 2) null, f6 float null, f7 double null, " + "f8 varchar(255) null, f9 text null, f10 blob null, f11 blob null, "
                             + (versionMeetsMinimum(5, 6, 4) ? "f12 datetime(3) null, f13 time(3) null, f14 date null)"
-                                    : "f12 datetime null, f13 time null, f14 date null)"));
+                            : "f12 datetime null, f13 time null, f14 date null)"));
 
             for (int i = 0; i < 1000; i++) {
                 differentTypes[i][0] = Math.random() < .5 ? null : new Byte((byte) (Math.random() * 127));
@@ -1523,11 +1500,11 @@ public class StatementsTest extends BaseTestCase {
             this.pstmt.setString(1, "A");
             this.pstmt.setInt(2, 1);
 
-            char[] cArray = { 'A', 'B', 'C' };
+            char[] cArray = {'A', 'B', 'C'};
             Reader r = new CharArrayReader(cArray);
             this.pstmt.setCharacterStream(3, r, cArray.length);
 
-            byte[] bArray = { 'D', 'E', 'F' };
+            byte[] bArray = {'D', 'E', 'F'};
             ByteArrayInputStream bais = new ByteArrayInputStream(bArray);
             this.pstmt.setBinaryStream(4, bais, bArray.length);
 
@@ -1538,7 +1515,7 @@ public class StatementsTest extends BaseTestCase {
             assertEquals("ABC", this.rs.getString(1));
             assertEquals("DEF", this.rs.getString(2));
 
-            char[] ucArray = { 'C', 'E', 'S', 'U' };
+            char[] ucArray = {'C', 'E', 'S', 'U'};
             this.pstmt.setString(1, "CESU");
             this.pstmt.setInt(2, 3);
             Reader ucReader = new CharArrayReader(ucArray);
@@ -1689,7 +1666,7 @@ public class StatementsTest extends BaseTestCase {
          * this.rs.getString(1);
          * } finally {
          * closeMemberJDBCResources();
-         * 
+         *
          * if (interceptedConn != null) {
          * interceptedConn.close();
          * }
@@ -1715,7 +1692,7 @@ public class StatementsTest extends BaseTestCase {
 
         java.util.Date now = new java.util.Date();
 
-        Object[] valuesToTest = new Object[] { new Byte(Byte.MIN_VALUE), new Short(Short.MIN_VALUE), new Integer(Integer.MIN_VALUE), new Long(Long.MIN_VALUE),
+        Object[] valuesToTest = new Object[]{new Byte(Byte.MIN_VALUE), new Short(Short.MIN_VALUE), new Integer(Integer.MIN_VALUE), new Long(Long.MIN_VALUE),
                 new Double(Double.MIN_VALUE), "\u4E2D\u6587", new BigDecimal(Math.PI), null, // to test isNull
                 now // to test serialization
         };

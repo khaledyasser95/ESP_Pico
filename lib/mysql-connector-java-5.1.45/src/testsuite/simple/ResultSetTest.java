@@ -23,6 +23,10 @@
 
 package testsuite.simple;
 
+import com.mysql.jdbc.CharsetMapping;
+import com.mysql.jdbc.ConnectionImpl;
+import testsuite.BaseTestCase;
+
 import java.io.UnsupportedEncodingException;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -30,11 +34,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Properties;
-
-import com.mysql.jdbc.CharsetMapping;
-import com.mysql.jdbc.ConnectionImpl;
-
-import testsuite.BaseTestCase;
 
 public class ResultSetTest extends BaseTestCase {
 
@@ -44,7 +43,7 @@ public class ResultSetTest extends BaseTestCase {
 
     /**
      * Runs all test cases in this test suite
-     * 
+     *
      * @param args
      */
     public static void main(String[] args) {

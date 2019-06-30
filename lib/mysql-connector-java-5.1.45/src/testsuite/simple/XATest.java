@@ -23,6 +23,14 @@
 
 package testsuite.simple;
 
+import com.mysql.jdbc.jdbc2.optional.MysqlXADataSource;
+import com.mysql.jdbc.jdbc2.optional.MysqlXid;
+import testsuite.BaseTestCase;
+
+import javax.sql.XAConnection;
+import javax.transaction.xa.XAException;
+import javax.transaction.xa.XAResource;
+import javax.transaction.xa.Xid;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -30,16 +38,6 @@ import java.rmi.server.UID;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Savepoint;
-
-import javax.sql.XAConnection;
-import javax.transaction.xa.XAException;
-import javax.transaction.xa.XAResource;
-import javax.transaction.xa.Xid;
-
-import com.mysql.jdbc.jdbc2.optional.MysqlXADataSource;
-import com.mysql.jdbc.jdbc2.optional.MysqlXid;
-
-import testsuite.BaseTestCase;
 
 /**
  * Unit tests for our XA implementation.
@@ -57,9 +55,8 @@ public class XATest extends BaseTestCase {
 
     /**
      * Tests that simple distributed transaction processing works as expected.
-     * 
-     * @throws Exception
-     *             if the test fails.
+     *
+     * @throws Exception if the test fails.
      */
     public void testCoordination() throws Exception {
         if (!versionMeetsMinimum(5, 0)) {
@@ -164,9 +161,8 @@ public class XATest extends BaseTestCase {
 
     /**
      * Tests that XA RECOVER works as expected.
-     * 
-     * @throws Exception
-     *             if test fails
+     *
+     * @throws Exception if test fails
      */
     public void testRecover() throws Exception {
         if (!versionMeetsMinimum(5, 0)) {
@@ -265,9 +261,8 @@ public class XATest extends BaseTestCase {
     /**
      * Tests operation of local transactions on XAConnections when global
      * transactions are in or not in progress (follows from BUG#17401).
-     * 
-     * @throws Exception
-     *             if the testcase fails
+     *
+     * @throws Exception if the testcase fails
      */
     public void testLocalTransaction() throws Exception {
         if (!versionMeetsMinimum(5, 0)) {
@@ -416,7 +411,7 @@ public class XATest extends BaseTestCase {
             xaConn1.close();
 
             /*
-             * 
+             *
              * -- fails using JOIN
              * xa start 0x123,0x456;
              * select * from foo;

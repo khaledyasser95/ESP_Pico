@@ -6,7 +6,10 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.Statement;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
@@ -15,7 +18,7 @@ import java.util.ArrayList;
 import java.util.Vector;
 
 public class Interface {
-    private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy/MM/dd HH:mm:ss");
+    private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     static int SENSORS_SIZE = 15;
     public JPanel rootPanel;
     int index = 0;
@@ -28,6 +31,9 @@ public class Interface {
     Vector IDs = new Vector();
     LocalDateTime temp;
     ArrayList<Float> avg = new ArrayList<Float>();
+    ArrayList<Float> avg_total = new ArrayList<Float>();
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    LocalDateTime nextstamp;
     private JTabbedPane tabbedPane1;
     private JTable main_table;
     private JTextField min_0;
@@ -139,8 +145,10 @@ public class Interface {
     private Connection conn = null;
     private DefaultTableModel tableModel;
     private DefaultTableModel tableModel1;
+    private DefaultTableModel tableModel2;
     private LocalDateTime now;
     private boolean started;
+    private LocalDateTime start_average;
 
     public Interface() {
         ini();
@@ -156,13 +164,11 @@ public class Interface {
                 Fetch_Data();
                 live_data();
                 Average_Min();
-                if(!started)
-                {
+                if (!started) {
                     ESP_T.Live_Repeat(Interface.this, 3000L, 3000L);
                     ESP_T.Average_every_min(Interface.this);
-                    started=true;
+                    started = true;
                 }
-
 
 
             }
@@ -193,30 +199,32 @@ public class Interface {
             public void actionPerformed(ActionEvent e) {
 //                String Generate_every= gen_time.getTimeField().getText();
                 //Call TImer
-                try {
-                    String start_Time = start_time.getTimeField().getText();
-                    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                    String start_Date = dateFormat.format(date_chooser.getDate());
-                    String date_time = start_Date + " " + start_Time;
-                    System.out.println(date_time);
-                    java.sql.Timestamp ts = java.sql.Timestamp.valueOf(date_time);
 
-                    Long timer = Long.parseLong(Average_every_txt.getText());
-                    Average(ts);
-                    ESP_T.Average_Repeat(Interface.this, timer * 60 * 1000L, timer * 60 * 1000L, ts);
-                    //Calculations
-                } catch (Exception e1) {
-                    JOptionPane.showMessageDialog(null, e1.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-                }
+                //  try
+                //  {
+                String start_Time = start_time.getTimeField().getText();
+                DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                String start_Date = dateFormat.format(date_chooser.getDate());
+                String date_time = start_Date + " " + start_Time;
+                System.out.println(date_time);
+                java.sql.Timestamp ts = java.sql.Timestamp.valueOf(date_time);
+                start_average = ts.toLocalDateTime();
+                Long timer = Long.parseLong(Average_every_txt.getText());
+                Average(timer);
+                //  }catch (Exception e1)
+                // {
+                //   JOptionPane.showMessageDialog(null, e1.getMessage(), "InfoBox: " , JOptionPane.ERROR_MESSAGE);
+
+                // }
+                //  ESP_T.Average_Repeat(Interface.this, timer * 60 * 1000L, timer * 60 * 1000L, ts);
+                //Calculations
 
 
             }
         });
 
 
-
     }
-
 
     private void createUIComponents() {
         // TODO: place custom component creation code here
@@ -229,7 +237,7 @@ public class Interface {
         System.out.println(temp);
         System.out.println(now);
         Fetch_Data();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
         float sum = 0;
         for (int i = 0; i < index; i++) {
             if (conf[i].isChecked()) {
@@ -266,7 +274,7 @@ public class Interface {
 
 
         tableModel1 = new DefaultTableModel();
-        tableModel1.addColumn("Time Stamp",conf[0].getAver_min_timestamp());
+        tableModel1.addColumn("Time Stamp", conf[0].getAver_min_timestamp());
         for (int i = 0; i < index; i++) {
             if (conf[i].isChecked()) {
                 tableModel1.addColumn(col[i], conf[i].getAver_min());
@@ -279,98 +287,71 @@ public class Interface {
 
     }
 
-    public void Average_Every_min() {
-        now = LocalDateTime.now();
-        float sum = 0;
-        System.out.println(dtf.format(now));
-
-
-        temp = now.minusMinutes(1L);
-
-        System.out.println("OJ YEAAAAAAAAAAAAAAaa");
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-        System.out.println(temp);
-        System.out.println(now);
-
-        for (int i = 0; i < index; i++) {
-            if (conf[i].isChecked()) {
-                for (int j = 0; j < conf[i].getTime_stamps().size(); j++) {
-                    String TIME = conf[i].getTime_stamps().get(j).toString().replace(".0", "").trim();
-
-                    LocalDateTime formatDateTime = LocalDateTime.parse(TIME, formatter);
-                    if (formatDateTime.isAfter(temp) && formatDateTime.isBefore(now)) {
-                        String value = conf[i].getValue().get(j).toString().replace('F', ' ').trim();
-                        if (Float.parseFloat(value) > 0) {
-                            avg.add(Float.parseFloat(value));
-                        }
-
-                    }
-
-                }
-                for (int k = 0; k < avg.size(); k++) {
-                    sum += avg.get(k);
-                }
-
-                //  conf[i].add_averg_min(sum / avg.size(), dtf.format(LocalDateTime.now()));
-                sum = 0;
-            }
-
-            avg.clear();
-        }
-
-
-        tableModel = new DefaultTableModel();
-        for (int i = 0; i < index; i++) {
-            if (conf[i].isChecked()) {
-                tableModel.addColumn(col[i], conf[i].getAver_min());
-            }
-        }
-        live_table.setModel(tableModel);
-
-
-    }
-
-    public void Average(Timestamp ts) {
+    public void Average(long ts) {
+        float avg_sum = 0;
         //FROM START TIME
         //TIME
+        int j;
 
-        ArrayList<Float> WHP_Array = new ArrayList<Float>();
-        float WHP_total = 0;
-        float WHP_average = 0;
-        Vector<Float> WHP_Averages = new Vector<Float>();
         Fetch_Data();
-        for (int i = 0; i < index; i++) {
-            if (conf[i].isChecked()) {
-                for (int j = 0; j < conf[i].getTime_stamps().size(); j++) {
-                    if (java.sql.Timestamp.valueOf(conf[i].getTime_stamps().get(j).toString()).after(ts)) {
-                        String value = conf[i].getValue().get(j).toString().replace('F', ' ').trim();
-                        float value1 = Float.parseFloat(value);
-                        WHP_Array.add(value1);
+
+        while (true) {
+
+            nextstamp = start_average.plusMinutes(ts);
+            if (nextstamp.isAfter(LocalDateTime.now()))
+                break;
+
+            System.out.println("AVERAGEE");
+            System.out.println(start_average);
+            System.out.println(nextstamp);
+
+            for (int i = 0; i < index; i++) {
+                if (conf[i].isChecked()) {
+                    for (j = 0; j < conf[i].getAver_min_timestamp().size(); j++) {
+                        String TIME_1 = conf[i].getAver_min_timestamp().get(j).toString().replace(".0", "").trim();
+                        LocalDateTime formatDateTime_1 = LocalDateTime.parse(TIME_1, formatter);
+                        if (formatDateTime_1.isAfter(start_average) && formatDateTime_1.isBefore(nextstamp)) {
+                            System.out.println("I AM IN");
+                            String value = conf[i].getAver_min().get(j).toString();
+                            if (Float.parseFloat(value) > 0) {
+                                avg_total.add(Float.parseFloat(value));
+                                System.out.println(value);
+                            }
+                        }
                     }
+
+                    for (int k = 0; k < avg_total.size(); k++) {
+                        avg_sum += avg_total.get(k);
+                    }
+
+
+                    float average = avg_sum / avg_total.size();
+                    if (average > 0) {
+                        conf[i].add_averg_total_value(average);
+                        conf[i].addAver_total_timestamp(conf[i].getAver_min_timestamp().get(j - 1));
+                    }
+
+
                 }
+
+                avg_sum = 0;
+                avg_total.clear();
             }
+            start_average = nextstamp;
 
         }
 
 
-        for (int i = 0; i < WHP_Array.size(); i++) {
-            WHP_total += WHP_Array.get(i);
-        }
-        WHP_average = WHP_total / WHP_Array.size();
-        WHP_Averages.add(WHP_average);
-
-
-        tableModel = new DefaultTableModel();
+        tableModel2 = new DefaultTableModel();
+        tableModel2.addColumn("Time Stamp", conf[0].getAver_total_timestamp());
         for (int i = 0; i < index; i++) {
             if (conf[i].isChecked()) {
-                if (conf[i].getName() == "WHP")
-                    tableModel.addColumn(col[i], WHP_Averages);
-
+                tableModel2.addColumn(col[i], conf[i].getAver_total());
             }
 
         }
 
-        average_table.setModel(tableModel);
+        average_table.setModel(tableModel2);
 
 
     }
@@ -414,13 +395,15 @@ public class Interface {
 
     public void Fetch_Data() {
         try {
-
-            System.out.println("Fetching");
+            IDs.clear();
+            for (int i = 0; i < index; i++) {
+                conf[i].clear();
+            }
+            //System.out.println("Fetching");
             stmt = conn.createStatement();
             String sql = "SELECT * FROM temp ";
             ResultSet rs = stmt.executeQuery(sql);
             ResultSetMetaData md = rs.getMetaData();
-
             int columnCount = md.getColumnCount();
             Vector columns = new Vector(columnCount);
             for (int i = 1; i <= columnCount; i++)

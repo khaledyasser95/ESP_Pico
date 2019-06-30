@@ -23,11 +23,11 @@
 
 package testsuite.simple;
 
-import java.sql.SQLException;
-import java.util.Properties;
-
 import com.mysql.jdbc.ConnectionPropertiesTransform;
 import com.mysql.jdbc.NonRegisteringDriver;
+
+import java.sql.SQLException;
+import java.util.Properties;
 
 /**
  * Used for testing the ConnectionPropertiesTransform functionality.
@@ -36,7 +36,7 @@ public class SimpleTransformer implements ConnectionPropertiesTransform {
 
     /*
      * (non-Javadoc)
-     * 
+     *
      * @see com.mysql.jdbc.ConnectionPropertiesTransform#transformProperties(java.util.Properties)
      */
     public Properties transformProperties(Properties props) throws SQLException {
