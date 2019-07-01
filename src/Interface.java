@@ -203,32 +203,27 @@ public class Interface {
         });
 
 
-
         startButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                  try
-                  {
-                String start_Time = start_time.getTimeField().getText();
-                DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-                String start_Date = dateFormat.format(date_chooser.getDate());
-                String date_time = start_Date + " " + start_Time;
-                // System.out.println(date_time);
-                java.sql.Timestamp ts = java.sql.Timestamp.valueOf(date_time);
-                start_average = ts.toLocalDateTime();
-                Long timer = Long.parseLong(Average_every_txt.getText());
-                Average(timer);
-                  }catch (Exception e1)
-                 {
-                   JOptionPane.showMessageDialog(null, e1.getMessage(), "InfoBox: " , JOptionPane.ERROR_MESSAGE);
+                try {
+                    String start_Time = start_time.getTimeField().getText();
+                    DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+                    String start_Date = dateFormat.format(date_chooser.getDate());
+                    String date_time = start_Date + " " + start_Time;
+                    // System.out.println(date_time);
+                    java.sql.Timestamp ts = java.sql.Timestamp.valueOf(date_time);
+                    start_average = ts.toLocalDateTime();
+                    Long timer = Long.parseLong(Average_every_txt.getText());
+                    Average(timer);
+                } catch (Exception e1) {
+                    JOptionPane.showMessageDialog(null, e1.getMessage(), "InfoBox: ", JOptionPane.ERROR_MESSAGE);
 
-                 }
-
+                }
 
 
             }
         });
-
 
 
     }
@@ -241,14 +236,14 @@ public class Interface {
     public void initUI() {
 
         XYDataset dataset = createDataset1();
-        chart = createChart(dataset);
+        JFreeChart chart = createChart(dataset);
 
         XYPlot plot = (XYPlot) chart.getPlot();
         plot.setBackgroundPaint(new Color(255, 228, 196));
 
         ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-        chartPanel.setBackground(new Color(242,242,242));
+        chartPanel.setBackground(new Color(242, 242, 242));
 
         chart_panel1.setLayout(new java.awt.BorderLayout());
 
@@ -260,10 +255,10 @@ public class Interface {
 
         chartPanel.repaint();
     }
-    JFreeChart chart;
+
     private JFreeChart createChart(XYDataset ds) {
 
-         chart = ChartFactory.createXYLineChart("Field Plot", "x", "y", ds, PlotOrientation.VERTICAL, true, true, false);
+        JFreeChart chart = ChartFactory.createXYLineChart("Field Plot", "x", "y", ds, PlotOrientation.VERTICAL, true, true, false);
 
 
         XYPlot plot = chart.getXYPlot();
@@ -275,7 +270,7 @@ public class Interface {
         renderer.setSeriesStroke(0, new BasicStroke(2.0f));
 
         plot.setRenderer(renderer);
-        plot.setBackgroundPaint(new Color(242,242,242));
+        plot.setBackgroundPaint(new Color(242, 242, 242));
 
         plot.setRangeGridlinesVisible(true);
         plot.setRangeGridlinePaint(Color.BLACK);

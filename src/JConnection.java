@@ -25,8 +25,7 @@ public class JConnection {
         }
     */
     public static JSONObject call_me() throws Exception {
-        try
-        {
+        try {
             String url = "http://192.168.1.3:8060/sensors/api.php";
             URL obj = new URL(url);
             HttpURLConnection con = (HttpURLConnection) obj.openConnection();
@@ -49,9 +48,8 @@ public class JConnection {
             JSONObject myResponse = new JSONObject(response.toString());
             return myResponse;
 
-        }catch (Exception e1)
-        {
-            JOptionPane.showMessageDialog(null, e1.getMessage(), "InfoBox: " , JOptionPane.ERROR_MESSAGE);
+        } catch (Exception e1) {
+            JOptionPane.showMessageDialog(null, e1.getMessage(), "InfoBox: ", JOptionPane.ERROR_MESSAGE);
         }
         return null;
 
