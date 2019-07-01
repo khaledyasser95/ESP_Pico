@@ -29,6 +29,7 @@ public class ESP_Timer {
         TimerTask repeatedTask = new TimerTask() {
             public void run() {
                 x.Average_Min();
+                x.initUI();
             }
         };
         Timer timer = new Timer("Timer");

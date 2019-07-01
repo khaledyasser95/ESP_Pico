@@ -1,5 +1,4 @@
 import com.toedter.calendar.JDateChooser;
-import javafx.scene.chart.NumberAxis;
 import lu.tudor.santec.jtimechooser.JTimeChooser;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -154,7 +153,8 @@ public class Interface {
     private JButton startButton;
     private JDateChooser date_chooser;
     private JTimeChooser start_time;
-    private JPanel chart_panel;
+    private JPanel chart_panel1;
+    private JPanel chart_21;
     private JButton test_btn;
     private JButton refresh_btn;
     private JTimeChooser gen_time;
@@ -202,23 +202,13 @@ public class Interface {
             }
         });
 
-        reconnectButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // conn = JConnection.ConnectDB();
-                // Check_connection();
-            }
-        });
 
 
         startButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-//                String Generate_every= gen_time.getTimeField().getText();
-                //Call TImer
-
-                //  try
-                //  {
+                  try
+                  {
                 String start_Time = start_time.getTimeField().getText();
                 DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                 String start_Date = dateFormat.format(date_chooser.getDate());
@@ -228,18 +218,17 @@ public class Interface {
                 start_average = ts.toLocalDateTime();
                 Long timer = Long.parseLong(Average_every_txt.getText());
                 Average(timer);
-                //  }catch (Exception e1)
-                // {
-                //   JOptionPane.showMessageDialog(null, e1.getMessage(), "InfoBox: " , JOptionPane.ERROR_MESSAGE);
+                  }catch (Exception e1)
+                 {
+                   JOptionPane.showMessageDialog(null, e1.getMessage(), "InfoBox: " , JOptionPane.ERROR_MESSAGE);
 
-                // }
-                //  ESP_T.Average_Repeat(Interface.this, timer * 60 * 1000L, timer * 60 * 1000L, ts);
+                 }
 
-                //Calculations
 
 
             }
         });
+
 
 
     }
@@ -249,26 +238,32 @@ public class Interface {
 
     }
 
-    private void initUI() {
+    public void initUI() {
 
         XYDataset dataset = createDataset1();
-        JFreeChart chart = createChart(dataset);
+        chart = createChart(dataset);
 
         XYPlot plot = (XYPlot) chart.getPlot();
         plot.setBackgroundPaint(new Color(255, 228, 196));
 
         ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
-        chartPanel.setBackground(Color.white);
-        chart_panel.setLayout(new java.awt.BorderLayout());
-        ChartPanel cp = new ChartPanel(chart);
-        chart_panel.add(cp, BorderLayout.CENTER);
-        chart_panel.validate();
-    }
+        chartPanel.setBackground(new Color(242,242,242));
 
+        chart_panel1.setLayout(new java.awt.BorderLayout());
+
+        ChartPanel cp = new ChartPanel(chart);
+
+        chart_panel1.add(cp, BorderLayout.CENTER);
+
+        chart_panel1.validate();
+
+        chartPanel.repaint();
+    }
+    JFreeChart chart;
     private JFreeChart createChart(XYDataset ds) {
 
-        JFreeChart chart = ChartFactory.createXYLineChart("Field Plot", "x", "y", ds, PlotOrientation.VERTICAL, true, true, false);
+         chart = ChartFactory.createXYLineChart("Field Plot", "x", "y", ds, PlotOrientation.VERTICAL, true, true, false);
 
 
         XYPlot plot = chart.getXYPlot();
@@ -280,7 +275,7 @@ public class Interface {
         renderer.setSeriesStroke(0, new BasicStroke(2.0f));
 
         plot.setRenderer(renderer);
-        plot.setBackgroundPaint(Color.white);
+        plot.setBackgroundPaint(new Color(242,242,242));
 
         plot.setRangeGridlinesVisible(true);
         plot.setRangeGridlinePaint(Color.BLACK);
@@ -299,23 +294,12 @@ public class Interface {
 
     }
 
-    private XYDataset createDataset() {
-
-        XYSeries series = new XYSeries("2016");
-        series.add(18, 567);
-        series.add(20, 567);
-
-        XYSeriesCollection dataset = new XYSeriesCollection();
-        dataset.addSeries(series);
-
-        return dataset;
-    }
 
     private XYDataset createDataset1() {
         float value;
 
         //series.clear();
-        // System.out.println("Table");
+
         for (int i = 0; i < index; i++) {
             series[i] = new XYSeries(conf[i].getName());
             for (int j = 0; j < conf[i].getAver_min().size(); j++) {
@@ -341,15 +325,12 @@ public class Interface {
     public void Average_Min() {
         now = LocalDateTime.now();
         temp = now.minusMinutes(1L);
-        //   System.out.println(temp);
-        // System.out.println(now);
         Fetch_Data();
-
         float sum = 0;
         for (int i = 0; i < index; i++) {
             if (conf[i].isChecked()) {
-                for (int j = conf[i].getTime_stamps().size() - 1; i > 0; j--) {
-                    if (j > 0) {
+                for (int j = conf[i].getTime_stamps().size() - 1; i >= 0; j--) {
+                    if (j >= 0) {
                         String TIME = conf[i].getTime_stamps().get(j).toString().replace(".0", "").trim();
                         LocalDateTime formatDateTime = LocalDateTime.parse(TIME, formatter);
                         if (formatDateTime.isAfter(temp) && formatDateTime.isBefore(now)) {
@@ -391,7 +372,7 @@ public class Interface {
         }
 
         main_table.setModel(tableModel1);
-        initUI();
+        //initUI();
 
     }
 
@@ -567,7 +548,7 @@ public class Interface {
         try {
             //Display in JTable
             tableModel = new DefaultTableModel();
-            tableModel.addColumn("Time Stamp", conf[conf[0].getTime_stamps().size() - 1].getTime_stamps());
+            tableModel.addColumn("Time Stamp", conf[0].getTime_stamps());
             for (int i = 0; i < index; i++) {
                 if (conf[i].isChecked()) {
                     tableModel.addColumn(col[i], conf[i].getValue());
@@ -654,7 +635,6 @@ public class Interface {
 
     public void view_temp() {
         try {
-            //conn = JConnection.ConnectDB();
             stmt = conn.createStatement();
             String sql = "SELECT * FROM temp ";
             ResultSet rs = stmt.executeQuery(sql);
