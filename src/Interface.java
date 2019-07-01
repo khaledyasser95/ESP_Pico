@@ -254,6 +254,9 @@ public class Interface {
         XYDataset dataset = createDataset1();
         JFreeChart chart = createChart(dataset);
 
+        XYPlot plot = (XYPlot)chart.getPlot();
+        plot.setBackgroundPaint(new Color(255,228,196));
+
         ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         chartPanel.setBackground(Color.white);
@@ -306,28 +309,32 @@ public class Interface {
 
         return dataset;
     }
-
+    XYSeries[] series= new XYSeries[SENSORS_SIZE] ;
     private XYDataset createDataset1() {
         float value;
-        XYSeries series = new XYSeries("2016");
-        series.clear();
+
+        //series.clear();
         System.out.println("Table");
         for (int i = 0; i < index; i++) {
-            for (int j = 0; j < conf[i].getAver_min().size(); j++) {
+            series[i] = new XYSeries(conf[i].getName());
+            for (int j = 0; j < conf[i].getAver_min().size(); j++)
+            {
                 value = Float.parseFloat(conf[i].getAver_min().get(j).toString());
                 String TIME = conf[i].getAver_min_timestamp().get(j).toString().replace(".0", "").trim();
                 LocalDateTime formatDateTime = LocalDateTime.parse(TIME, formatter);
                 if (value > 0)
-                    series.add(formatDateTime.getMinute(), value);
+                    series[i].add(formatDateTime.getMinute(), value);
 
             }
 
         }
-
-
-
         XYSeriesCollection dataset = new XYSeriesCollection();
-        dataset.addSeries(series);
+        for (int i = 0; i < index; i++) {
+            dataset.addSeries(series[i]);
+        }
+
+
+
 
         return dataset;
     }
