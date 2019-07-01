@@ -32,7 +32,7 @@ public class JConnection {
         //add request header
         con.setRequestProperty("User-Agent", "Mozilla/5.0");
         int responseCode = con.getResponseCode();
-       // System.out.println("\nSending 'GET' request to URL : " + url);
+        // System.out.println("\nSending 'GET' request to URL : " + url);
         //System.out.println("Response Code : " + responseCode);
         BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
         String inputLine;
@@ -41,18 +41,10 @@ public class JConnection {
             response.append(inputLine);
         }
         in.close();
-        //print in String
-        //System.out.println(response.toString());
 
         //Read JSON response and print
         JSONObject myResponse = new JSONObject(response.toString());
-/*
-        JSONArray arr = myResponse.getJSONArray("data");
-        for (int i = 0; i < arr.length(); i++) {
-            String post_id = arr.getJSONObject(i).getString("temp_ID")+arr.getJSONObject(i).getString("Time")+arr.getJSONObject(i).getString("Temp");
-            System.out.println(post_id);
-        }
-        */
+
         return myResponse;
 
     }

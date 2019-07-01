@@ -1,4 +1,5 @@
 import com.toedter.calendar.JDateChooser;
+import javafx.scene.chart.NumberAxis;
 import lu.tudor.santec.jtimechooser.JTimeChooser;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
@@ -47,6 +48,7 @@ public class Interface {
     ArrayList<Float> avg_total = new ArrayList<Float>();
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     LocalDateTime nextstamp;
+    XYSeries[] series = new XYSeries[SENSORS_SIZE];
     private JTabbedPane tabbedPane1;
     private JTable main_table;
     private JTextField min_0;
@@ -175,7 +177,6 @@ public class Interface {
             public void actionPerformed(ActionEvent e) {
                 //ACTIVATAE
                 configure(conf);
-
                 Fetch_Data();
                 live_data();
                 Average_Min();
@@ -222,7 +223,7 @@ public class Interface {
                 DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
                 String start_Date = dateFormat.format(date_chooser.getDate());
                 String date_time = start_Date + " " + start_Time;
-                System.out.println(date_time);
+                // System.out.println(date_time);
                 java.sql.Timestamp ts = java.sql.Timestamp.valueOf(date_time);
                 start_average = ts.toLocalDateTime();
                 Long timer = Long.parseLong(Average_every_txt.getText());
@@ -248,14 +249,13 @@ public class Interface {
 
     }
 
-
     private void initUI() {
 
         XYDataset dataset = createDataset1();
         JFreeChart chart = createChart(dataset);
 
-        XYPlot plot = (XYPlot)chart.getPlot();
-        plot.setBackgroundPaint(new Color(255,228,196));
+        XYPlot plot = (XYPlot) chart.getPlot();
+        plot.setBackgroundPaint(new Color(255, 228, 196));
 
         ChartPanel chartPanel = new ChartPanel(chart);
         chartPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
@@ -268,12 +268,14 @@ public class Interface {
 
     private JFreeChart createChart(XYDataset ds) {
 
-        JFreeChart chart = ChartFactory.createXYLineChart("Test Chart", "x", "y", ds, PlotOrientation.VERTICAL, true, true, false);
+        JFreeChart chart = ChartFactory.createXYLineChart("Field Plot", "x", "y", ds, PlotOrientation.VERTICAL, true, true, false);
 
 
         XYPlot plot = chart.getXYPlot();
 
-        XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
+        XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) plot.getRenderer();
+        renderer.setBaseShapesVisible(true);
+
         renderer.setSeriesPaint(0, Color.RED);
         renderer.setSeriesStroke(0, new BasicStroke(2.0f));
 
@@ -288,7 +290,7 @@ public class Interface {
 
         chart.getLegend().setFrame(BlockBorder.NONE);
 
-        chart.setTitle(new TextTitle("Average Salary per Age",
+        chart.setTitle(new TextTitle("Field Plot",
                         new Font("Serif", java.awt.Font.BOLD, 18)
                 )
         );
@@ -296,7 +298,6 @@ public class Interface {
         return chart;
 
     }
-
 
     private XYDataset createDataset() {
 
@@ -309,16 +310,15 @@ public class Interface {
 
         return dataset;
     }
-    XYSeries[] series= new XYSeries[SENSORS_SIZE] ;
+
     private XYDataset createDataset1() {
         float value;
 
         //series.clear();
-        System.out.println("Table");
+        // System.out.println("Table");
         for (int i = 0; i < index; i++) {
             series[i] = new XYSeries(conf[i].getName());
-            for (int j = 0; j < conf[i].getAver_min().size(); j++)
-            {
+            for (int j = 0; j < conf[i].getAver_min().size(); j++) {
                 value = Float.parseFloat(conf[i].getAver_min().get(j).toString());
                 String TIME = conf[i].getAver_min_timestamp().get(j).toString().replace(".0", "").trim();
                 LocalDateTime formatDateTime = LocalDateTime.parse(TIME, formatter);
@@ -334,44 +334,15 @@ public class Interface {
         }
 
 
-
-
         return dataset;
     }
-/*
-    private void chart() {
-        XYDataset ds = createDataset1();
-        chart = ChartFactory.createXYLineChart("Test Chart","x", "y", ds, PlotOrientation.VERTICAL, true, true, false);
-
-        XYPlot plot = chart.getXYPlot();
-
-        XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
-        renderer.setSeriesPaint(0, Color.RED);
-        renderer.setSeriesStroke(0, new BasicStroke(2.0f));
-
-        plot.setRenderer(renderer);
-        plot.setBackgroundPaint(Color.white);
-
-        plot.setRangeGridlinesVisible(true);
-        plot.setRangeGridlinePaint(Color.BLACK);
-
-        plot.setDomainGridlinesVisible(true);
-        plot.setDomainGridlinePaint(Color.BLACK);
-
-        chart.getLegend().setFrame(BlockBorder.NONE);
-
-        chart_panel.setLayout(new java.awt.BorderLayout());
-        ChartPanel cp = new ChartPanel(chart);
-        chart_panel.add(cp, BorderLayout.CENTER);
-        chart_panel.validate();
-    }*/
 
 
     public void Average_Min() {
         now = LocalDateTime.now();
         temp = now.minusMinutes(1L);
-        System.out.println(temp);
-        System.out.println(now);
+        //   System.out.println(temp);
+        // System.out.println(now);
         Fetch_Data();
 
         float sum = 0;
@@ -450,7 +421,7 @@ public class Interface {
                             String value = conf[i].getAver_min().get(j).toString();
                             if (Float.parseFloat(value) > 0) {
                                 avg_total.add(Float.parseFloat(value));
-                                System.out.println(value);
+
                             }
                         }
                     }
@@ -492,7 +463,7 @@ public class Interface {
     }
 
     private void ini() {
-       // conn = JConnection.ConnectDB();
+        // conn = JConnection.ConnectDB();
 
         for (int i = 0; i < SENSORS_SIZE; i++) {
             a[i] = 0;
@@ -596,6 +567,7 @@ public class Interface {
         try {
             //Display in JTable
             tableModel = new DefaultTableModel();
+            tableModel.addColumn("Time Stamp", conf[conf[0].getTime_stamps().size() - 1].getTime_stamps());
             for (int i = 0; i < index; i++) {
                 if (conf[i].isChecked()) {
                     tableModel.addColumn(col[i], conf[i].getValue());

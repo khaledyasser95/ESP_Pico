@@ -85,6 +85,10 @@ public class Config {
         return value;
     }
 
+    public Object getValue_last() {
+        return value.get(value.size() - 1);
+    }
+
     public Vector getTime_stamps() {
         return Time_stamps;
     }
