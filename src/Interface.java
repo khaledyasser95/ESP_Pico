@@ -312,14 +312,18 @@ public class Interface {
         XYSeries series = new XYSeries("2016");
         series.clear();
         System.out.println("Table");
-        for (int j = 0; j < conf[1].getAver_min().size(); j++) {
-            value = Float.parseFloat(conf[1].getAver_min().get(j).toString());
-            String TIME = conf[1].getAver_min_timestamp().get(j).toString().replace(".0", "").trim();
-            LocalDateTime formatDateTime = LocalDateTime.parse(TIME, formatter);
-            if (value > 0)
-                series.add(formatDateTime.getMinute(), value);
+        for (int i = 0; i < index; i++) {
+            for (int j = 0; j < conf[i].getAver_min().size(); j++) {
+                value = Float.parseFloat(conf[i].getAver_min().get(j).toString());
+                String TIME = conf[i].getAver_min_timestamp().get(j).toString().replace(".0", "").trim();
+                LocalDateTime formatDateTime = LocalDateTime.parse(TIME, formatter);
+                if (value > 0)
+                    series.add(formatDateTime.getMinute(), value);
+
+            }
 
         }
+
 
 
         XYSeriesCollection dataset = new XYSeriesCollection();
