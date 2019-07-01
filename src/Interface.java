@@ -1,5 +1,18 @@
 import com.toedter.calendar.JDateChooser;
 import lu.tudor.santec.jtimechooser.JTimeChooser;
+import org.jfree.chart.ChartFactory;
+import org.jfree.chart.ChartPanel;
+import org.jfree.chart.JFreeChart;
+import org.jfree.chart.block.BlockBorder;
+import org.jfree.chart.plot.PlotOrientation;
+import org.jfree.chart.plot.XYPlot;
+import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
+import org.jfree.chart.title.TextTitle;
+import org.jfree.data.xy.XYDataset;
+import org.jfree.data.xy.XYSeries;
+import org.jfree.data.xy.XYSeriesCollection;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
@@ -139,6 +152,7 @@ public class Interface {
     private JButton startButton;
     private JDateChooser date_chooser;
     private JTimeChooser start_time;
+    private JPanel chart_panel;
     private JButton test_btn;
     private JButton refresh_btn;
     private JTimeChooser gen_time;
@@ -152,6 +166,7 @@ public class Interface {
 
     public Interface() {
         ini();
+
         date_chooser.setDateFormatString("yyyy-MM-dd");
 
         Check_connection();
@@ -164,6 +179,7 @@ public class Interface {
                 Fetch_Data();
                 live_data();
                 Average_Min();
+
                 if (!started) {
                     ESP_T.Live_Repeat(Interface.this, 3000L, 3000L);
                     ESP_T.Average_every_min(Interface.this);
@@ -188,8 +204,8 @@ public class Interface {
         reconnectButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                conn = JConnection.ConnectDB();
-                Check_connection();
+                // conn = JConnection.ConnectDB();
+                // Check_connection();
             }
         });
 
@@ -217,6 +233,7 @@ public class Interface {
 
                 // }
                 //  ESP_T.Average_Repeat(Interface.this, timer * 60 * 1000L, timer * 60 * 1000L, ts);
+
                 //Calculations
 
 
@@ -230,6 +247,114 @@ public class Interface {
         // TODO: place custom component creation code here
 
     }
+
+
+    private void initUI() {
+
+        XYDataset dataset = createDataset1();
+        JFreeChart chart = createChart(dataset);
+
+        ChartPanel chartPanel = new ChartPanel(chart);
+        chartPanel.setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
+        chartPanel.setBackground(Color.white);
+        chart_panel.setLayout(new java.awt.BorderLayout());
+        ChartPanel cp = new ChartPanel(chart);
+        chart_panel.add(cp, BorderLayout.CENTER);
+        chart_panel.validate();
+    }
+
+    private JFreeChart createChart(XYDataset ds) {
+
+        JFreeChart chart = ChartFactory.createXYLineChart("Test Chart", "x", "y", ds, PlotOrientation.VERTICAL, true, true, false);
+
+
+        XYPlot plot = chart.getXYPlot();
+
+        XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
+        renderer.setSeriesPaint(0, Color.RED);
+        renderer.setSeriesStroke(0, new BasicStroke(2.0f));
+
+        plot.setRenderer(renderer);
+        plot.setBackgroundPaint(Color.white);
+
+        plot.setRangeGridlinesVisible(true);
+        plot.setRangeGridlinePaint(Color.BLACK);
+
+        plot.setDomainGridlinesVisible(true);
+        plot.setDomainGridlinePaint(Color.BLACK);
+
+        chart.getLegend().setFrame(BlockBorder.NONE);
+
+        chart.setTitle(new TextTitle("Average Salary per Age",
+                        new Font("Serif", java.awt.Font.BOLD, 18)
+                )
+        );
+
+        return chart;
+
+    }
+
+
+    private XYDataset createDataset() {
+
+        XYSeries series = new XYSeries("2016");
+        series.add(18, 567);
+        series.add(20, 567);
+
+        XYSeriesCollection dataset = new XYSeriesCollection();
+        dataset.addSeries(series);
+
+        return dataset;
+    }
+
+    private XYDataset createDataset1() {
+        float value;
+        XYSeries series = new XYSeries("2016");
+        series.clear();
+        System.out.println("Table");
+        for (int j = 0; j < conf[1].getAver_min().size(); j++) {
+            value = Float.parseFloat(conf[1].getAver_min().get(j).toString());
+            String TIME = conf[1].getAver_min_timestamp().get(j).toString().replace(".0", "").trim();
+            LocalDateTime formatDateTime = LocalDateTime.parse(TIME, formatter);
+            if (value > 0)
+                series.add(formatDateTime.getMinute(), value);
+
+        }
+
+
+        XYSeriesCollection dataset = new XYSeriesCollection();
+        dataset.addSeries(series);
+
+        return dataset;
+    }
+/*
+    private void chart() {
+        XYDataset ds = createDataset1();
+        chart = ChartFactory.createXYLineChart("Test Chart","x", "y", ds, PlotOrientation.VERTICAL, true, true, false);
+
+        XYPlot plot = chart.getXYPlot();
+
+        XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
+        renderer.setSeriesPaint(0, Color.RED);
+        renderer.setSeriesStroke(0, new BasicStroke(2.0f));
+
+        plot.setRenderer(renderer);
+        plot.setBackgroundPaint(Color.white);
+
+        plot.setRangeGridlinesVisible(true);
+        plot.setRangeGridlinePaint(Color.BLACK);
+
+        plot.setDomainGridlinesVisible(true);
+        plot.setDomainGridlinePaint(Color.BLACK);
+
+        chart.getLegend().setFrame(BlockBorder.NONE);
+
+        chart_panel.setLayout(new java.awt.BorderLayout());
+        ChartPanel cp = new ChartPanel(chart);
+        chart_panel.add(cp, BorderLayout.CENTER);
+        chart_panel.validate();
+    }*/
+
 
     public void Average_Min() {
         now = LocalDateTime.now();
@@ -280,10 +405,11 @@ public class Interface {
                 tableModel1.addColumn(col[i], conf[i].getAver_min());
 
             }
+
         }
 
         main_table.setModel(tableModel1);
-
+        initUI();
 
     }
 
@@ -293,6 +419,9 @@ public class Interface {
         //TIME
         int j;
 
+        for (int a = 0; a < index; a++) {
+            conf[a].Clear_Average_total();
+        }
         Fetch_Data();
 
         while (true) {
@@ -301,17 +430,12 @@ public class Interface {
             if (nextstamp.isAfter(LocalDateTime.now()))
                 break;
 
-            System.out.println("AVERAGEE");
-            System.out.println(start_average);
-            System.out.println(nextstamp);
-
             for (int i = 0; i < index; i++) {
                 if (conf[i].isChecked()) {
                     for (j = 0; j < conf[i].getAver_min_timestamp().size(); j++) {
                         String TIME_1 = conf[i].getAver_min_timestamp().get(j).toString().replace(".0", "").trim();
                         LocalDateTime formatDateTime_1 = LocalDateTime.parse(TIME_1, formatter);
                         if (formatDateTime_1.isAfter(start_average) && formatDateTime_1.isBefore(nextstamp)) {
-                            System.out.println("I AM IN");
                             String value = conf[i].getAver_min().get(j).toString();
                             if (Float.parseFloat(value) > 0) {
                                 avg_total.add(Float.parseFloat(value));
@@ -357,7 +481,7 @@ public class Interface {
     }
 
     private void ini() {
-        conn = JConnection.ConnectDB();
+       // conn = JConnection.ConnectDB();
 
         for (int i = 0; i < SENSORS_SIZE; i++) {
             a[i] = 0;
@@ -392,7 +516,7 @@ public class Interface {
             con_txt.setText("Disconnected");
         }
     }
-
+/*
     public void Fetch_Data() {
         try {
             IDs.clear();
@@ -417,6 +541,35 @@ public class Interface {
                     if (conf[i].getId().equals(ID.trim()) && conf[i].isChecked()) {
                         conf[i].add_value(rs.getString(5));
                         conf[i].add_time_stamp(rs.getString(4));
+                    }
+                }
+
+            }
+
+
+        } catch (Exception e1) {
+            System.out.println(e1.getMessage());
+        }
+    }
+*/
+
+    public void Fetch_Data() {
+        try {
+            IDs.clear();
+            for (int i = 0; i < index; i++) {
+                conf[i].clear();
+            }
+
+
+            JSONObject myResponse = JConnection.call_me();
+            JSONArray arr = myResponse.getJSONArray("data");
+            for (int i = 0; i < arr.length(); i++) {
+                String ID = arr.getJSONObject(i).getString("temp_ID");
+                IDs.add(ID);
+                for (int j = 0; j < index; j++) {
+                    if (conf[j].getId().equals(ID.trim()) && conf[j].isChecked()) {
+                        conf[j].add_value(arr.getJSONObject(i).getString("Temp"));
+                        conf[j].add_time_stamp(arr.getJSONObject(i).getString("Time"));
                     }
                 }
 
@@ -518,7 +671,7 @@ public class Interface {
 
     public void view_temp() {
         try {
-            conn = JConnection.ConnectDB();
+            //conn = JConnection.ConnectDB();
             stmt = conn.createStatement();
             String sql = "SELECT * FROM temp ";
             ResultSet rs = stmt.executeQuery(sql);
