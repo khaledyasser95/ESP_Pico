@@ -48,6 +48,9 @@ public class Interface {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
     LocalDateTime nextstamp;
     XYSeries[] series = new XYSeries[SENSORS_SIZE];
+    JLabel[] labels = new JLabel[SENSORS_SIZE];
+    JTextField[] text = new JTextField[SENSORS_SIZE];
+    Vector time = new Vector();
     private JTabbedPane tabbedPane1;
     private JTable main_table;
     private JTextField min_0;
@@ -154,6 +157,7 @@ public class Interface {
     private JDateChooser date_chooser;
     private JTimeChooser start_time;
     private JPanel chart_panel1;
+    private JPanel live_pan;
     private JPanel chart_21;
     private JButton test_btn;
     private JButton refresh_btn;
@@ -165,6 +169,8 @@ public class Interface {
     private LocalDateTime now;
     private boolean started;
     private LocalDateTime start_average;
+    private int location = 0;
+    private ArrayList sizes = new ArrayList();
 
     public Interface() {
         ini();
@@ -176,15 +182,23 @@ public class Interface {
             @Override
             public void actionPerformed(ActionEvent e) {
                 //ACTIVATAE
-                configure(conf);
-                Fetch_Data();
-                live_data();
-                Average_Min();
+                try {
+                    configure(conf);
+                    Fetch_Data();
+                    get_size();
+                    live_data();
+                    Average_Min();
+                    create_buttons();
+                    if (!started) {
+                        ESP_T.Live_Repeat(Interface.this, 7000L, 7000L);
+                        ESP_T.Average_every_min(Interface.this);
+                        ESP_T.Check_if_dis(Interface.this);
+                        started = true;
+                    }
 
-                if (!started) {
-                    ESP_T.Live_Repeat(Interface.this, 3000L, 3000L);
-                    ESP_T.Average_every_min(Interface.this);
-                    started = true;
+                } catch (Exception e1) {
+                    JOptionPane.showMessageDialog(null, e1.getMessage(), "ACTIVATAE: ", JOptionPane.ERROR_MESSAGE);
+
                 }
 
 
@@ -230,6 +244,66 @@ public class Interface {
 
     private void createUIComponents() {
         // TODO: place custom component creation code here
+
+    }
+
+    private void create_buttons() {
+        live_pan.removeAll();
+        try {
+            if (index != 0) {
+                live_pan.setLayout(new GridLayout(0, index));
+                Font font = new Font("Serif", java.awt.Font.BOLD, 18);
+
+                for (int i = 0; i < index; i++) {
+                    labels[i] = new JLabel();
+                    labels[i].setFont(font);
+                    labels[i].setHorizontalAlignment(SwingConstants.CENTER);
+                    labels[i].setVerticalAlignment(SwingConstants.CENTER);
+                    live_pan.add(labels[i]);
+
+                }
+                for (int i = 0; i < index; i++) {
+                    String Value = conf[i].getValue_last().toString();
+                    text[i] = new JTextField();
+                    text[i].setFont(font);
+                    text[i].setHorizontalAlignment(SwingConstants.CENTER);
+
+                    live_pan.add(text[i], BorderLayout.CENTER);
+                }
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage(), "Live_Buttons: ", JOptionPane.ERROR_MESSAGE);
+        }
+
+
+    }
+
+    public void edit_field() {
+        try {
+            for (int i = 0; i < index; i++) {
+                labels[i].setText(conf[i].getName());
+                if (conf[i].getValue().size() - 1 > 0) {
+                    if (conf[i].getValue().size() - 1 > Integer.parseInt(sizes.get(i).toString())) {
+                        if (Float.parseFloat(conf[i].getValue_last().toString()) > 0) {
+                            text[i].setText(conf[i].getValue_last().toString());
+                            text[i].setBackground(Color.GREEN);
+                        } else {
+                            text[i].setText("Sensor error");
+                            text[i].setBackground(Color.CYAN);
+                        }
+                    } else {
+                        text[i].setText("Not connected");
+                        text[i].setBackground(Color.RED);
+                    }
+                } else {
+                    text[i].setText("Not connected");
+                    text[i].setBackground(Color.RED);
+                }
+
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage(), "InfoBox: ", JOptionPane.ERROR_MESSAGE);
+        }
 
     }
 
@@ -289,7 +363,6 @@ public class Interface {
 
     }
 
-
     private XYDataset createDataset1() {
         float value;
 
@@ -316,163 +389,135 @@ public class Interface {
         return dataset;
     }
 
-
     public void Average_Min() {
-        now = LocalDateTime.now();
-        temp = now.minusMinutes(1L);
-        Fetch_Data();
-        float sum = 0;
-        for (int i = 0; i < index; i++) {
-            if (conf[i].isChecked()) {
-                for (int j = conf[i].getTime_stamps().size() - 1; i >= 0; j--) {
-                    if (j >= 0) {
-                        String TIME = conf[i].getTime_stamps().get(j).toString().replace(".0", "").trim();
-                        LocalDateTime formatDateTime = LocalDateTime.parse(TIME, formatter);
-                        if (formatDateTime.isAfter(temp) && formatDateTime.isBefore(now)) {
-                            String value = conf[i].getValue().get(j).toString().replace('F', ' ').trim();
-                            if (Float.parseFloat(value) > 0) {
-                                avg.add(Float.parseFloat(value));
+        try {
+            now = LocalDateTime.now();
+            temp = now.minusMinutes(1L);
+            Fetch_Data();
+            float sum = 0;
+            for (int i = 0; i < index; i++) {
+                if (conf[i].isChecked()) {
+                    for (int j = conf[i].getTime_stamps().size() - 1; i >= 0; j--) {
+                        if (j >= 0) {
+                            String TIME = conf[i].getTime_stamps().get(j).toString().replace(".0", "").trim();
+                            LocalDateTime formatDateTime = LocalDateTime.parse(TIME, formatter);
+                            if (formatDateTime.isAfter(temp) && formatDateTime.isBefore(now)) {
+                                String value = conf[i].getValue().get(j).toString().replace('F', ' ').trim();
+                                if (Float.parseFloat(value) > 0) {
+                                    avg.add(Float.parseFloat(value));
 
+                                }
+
+                            } else {
+                                break;
                             }
-
-                        } else {
+                        } else
                             break;
-                        }
-                    } else
-                        break;
+
+                    }
+                    for (int k = 0; k < avg.size(); k++) {
+                        sum += avg.get(k);
+                    }
+                    float average = sum / avg.size();
+                    conf[i].setAver_min(average);
+                    conf[i].setAver_min_timestamp(dtf.format(LocalDateTime.now()));
 
                 }
-                for (int k = 0; k < avg.size(); k++) {
-                    sum += avg.get(k);
+
+                sum = 0;
+                avg.clear();
+            }
+
+
+            tableModel1 = new DefaultTableModel();
+            tableModel1.addColumn("Time Stamp", conf[0].getAver_min_timestamp());
+            for (int i = 0; i < index; i++) {
+                if (conf[i].isChecked()) {
+                    tableModel1.addColumn(col[i], conf[i].getAver_min());
+
                 }
-                float average = sum / avg.size();
-                conf[i].setAver_min(average);
-                conf[i].setAver_min_timestamp(dtf.format(LocalDateTime.now()));
 
             }
 
-            sum = 0;
-            avg.clear();
+            main_table.setModel(tableModel1);
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(null, e.getMessage(), "AVERAGE_MIN: ", JOptionPane.ERROR_MESSAGE);
         }
 
 
-        tableModel1 = new DefaultTableModel();
-        tableModel1.addColumn("Time Stamp", conf[0].getAver_min_timestamp());
-        for (int i = 0; i < index; i++) {
-            if (conf[i].isChecked()) {
-                tableModel1.addColumn(col[i], conf[i].getAver_min());
-
-            }
-
-        }
-
-        main_table.setModel(tableModel1);
         //initUI();
 
     }
 
     public void Average(long ts) {
-        float avg_sum = 0;
-        //FROM START TIME
-        //TIME
-        int j;
+        try {
+            float avg_sum = 0;
+            //FROM START TIME
+            //TIME
+            int j;
 
-        for (int a = 0; a < index; a++) {
-            conf[a].Clear_Average_total();
-        }
-        Fetch_Data();
+            for (int a = 0; a < index; a++) {
+                conf[a].Clear_Average_total();
+            }
+            Fetch_Data();
 
-        while (true) {
+            while (true) {
 
-            nextstamp = start_average.plusMinutes(ts);
-            if (nextstamp.isAfter(LocalDateTime.now()))
-                break;
+                nextstamp = start_average.plusMinutes(ts);
+                if (nextstamp.isAfter(LocalDateTime.now()))
+                    break;
 
-            for (int i = 0; i < index; i++) {
-                if (conf[i].isChecked()) {
-                    for (j = 0; j < conf[i].getAver_min_timestamp().size(); j++) {
-                        String TIME_1 = conf[i].getAver_min_timestamp().get(j).toString().replace(".0", "").trim();
-                        LocalDateTime formatDateTime_1 = LocalDateTime.parse(TIME_1, formatter);
-                        if (formatDateTime_1.isAfter(start_average) && formatDateTime_1.isBefore(nextstamp)) {
-                            String value = conf[i].getAver_min().get(j).toString();
-                            if (Float.parseFloat(value) > 0) {
-                                avg_total.add(Float.parseFloat(value));
+                for (int i = 0; i < index; i++) {
+                    if (conf[i].isChecked()) {
+                        for (j = 0; j < conf[i].getAver_min_timestamp().size(); j++) {
+                            String TIME_1 = conf[i].getAver_min_timestamp().get(j).toString().replace(".0", "").trim();
+                            LocalDateTime formatDateTime_1 = LocalDateTime.parse(TIME_1, formatter);
+                            if (formatDateTime_1.isAfter(start_average) && formatDateTime_1.isBefore(nextstamp)) {
+                                String value = conf[i].getAver_min().get(j).toString();
+                                if (Float.parseFloat(value) > 0) {
+                                    avg_total.add(Float.parseFloat(value));
 
+                                }
                             }
                         }
+
+                        for (int k = 0; k < avg_total.size(); k++) {
+                            avg_sum += avg_total.get(k);
+                        }
+
+
+                        float average = avg_sum / avg_total.size();
+                        if (average > 0) {
+                            conf[i].add_averg_total_value(average);
+                            conf[i].addAver_total_timestamp(conf[i].getAver_min_timestamp().get(j - 1));
+                        }
+
+
                     }
 
-                    for (int k = 0; k < avg_total.size(); k++) {
-                        avg_sum += avg_total.get(k);
-                    }
+                    avg_sum = 0;
+                    avg_total.clear();
+                }
+                start_average = nextstamp;
+
+            }
 
 
-                    float average = avg_sum / avg_total.size();
-                    if (average > 0) {
-                        conf[i].add_averg_total_value(average);
-                        conf[i].addAver_total_timestamp(conf[i].getAver_min_timestamp().get(j - 1));
-                    }
-
-
+            tableModel2 = new DefaultTableModel();
+            tableModel2.addColumn("Time Stamp", conf[0].getAver_total_timestamp());
+            for (int i = 0; i < index; i++) {
+                if (conf[i].isChecked()) {
+                    tableModel2.addColumn(col[i], conf[i].getAver_total());
                 }
 
-                avg_sum = 0;
-                avg_total.clear();
-            }
-            start_average = nextstamp;
-
-        }
-
-
-        tableModel2 = new DefaultTableModel();
-        tableModel2.addColumn("Time Stamp", conf[0].getAver_total_timestamp());
-        for (int i = 0; i < index; i++) {
-            if (conf[i].isChecked()) {
-                tableModel2.addColumn(col[i], conf[i].getAver_total());
             }
 
+            average_table.setModel(tableModel2);
+        } catch (Exception e1) {
+            JOptionPane.showMessageDialog(null, e1.getMessage(), "AVERAGE_MIN: ", JOptionPane.ERROR_MESSAGE);
         }
 
-        average_table.setModel(tableModel2);
 
-
-    }
-
-    private void ini() {
-        // conn = JConnection.ConnectDB();
-
-        for (int i = 0; i < SENSORS_SIZE; i++) {
-            a[i] = 0;
-
-        }
-
-        boxes[0] = checkBox1;
-        boxes[1] = checkBox2;
-        boxes[2] = checkBox3;
-        boxes[3] = checkBox4;
-        boxes[4] = checkBox5;
-        boxes[5] = checkBox6;
-        boxes[6] = checkBox7;
-        boxes[7] = checkBox8;
-        boxes[8] = checkBox9;
-        boxes[9] = checkBox10;
-        boxes[10] = checkBox11;
-        boxes[11] = checkBox12;
-        boxes[12] = checkBox13;
-        boxes[13] = checkBox14;
-        boxes[14] = checkBox15;
-
-
-    }
-
-    private void Check_connection() {
-        if (JConnection.connected) {
-            con_txt.setBackground(Color.GREEN);
-            con_txt.setText("Connected");
-        } else {
-            con_txt.setBackground(Color.RED);
-            con_txt.setText("Disconnected");
-        }
     }
 /*
     public void Fetch_Data() {
@@ -511,23 +556,62 @@ public class Interface {
     }
 */
 
+    private void ini() {
+        // conn = JConnection.ConnectDB();
+
+        for (int i = 0; i < SENSORS_SIZE; i++) {
+            a[i] = 0;
+
+        }
+
+        boxes[0] = checkBox1;
+        boxes[1] = checkBox2;
+        boxes[2] = checkBox3;
+        boxes[3] = checkBox4;
+        boxes[4] = checkBox5;
+        boxes[5] = checkBox6;
+        boxes[6] = checkBox7;
+        boxes[7] = checkBox8;
+        boxes[8] = checkBox9;
+        boxes[9] = checkBox10;
+        boxes[10] = checkBox11;
+        boxes[11] = checkBox12;
+        boxes[12] = checkBox13;
+        boxes[13] = checkBox14;
+        boxes[14] = checkBox15;
+
+
+    }
+
+    private void Check_connection() {
+        if (JConnection.connected) {
+            con_txt.setBackground(Color.GREEN);
+            con_txt.setText("Connected");
+        } else {
+            con_txt.setBackground(Color.RED);
+            con_txt.setText("Disconnected");
+        }
+    }
+
     public void Fetch_Data() {
         try {
+
             IDs.clear();
             for (int i = 0; i < index; i++) {
                 conf[i].clear();
             }
-
-
+            time.clear();
             JSONObject myResponse = JConnection.call_me();
             JSONArray arr = myResponse.getJSONArray("data");
             for (int i = 0; i < arr.length(); i++) {
                 String ID = arr.getJSONObject(i).getString("temp_ID");
                 IDs.add(ID);
                 for (int j = 0; j < index; j++) {
+
                     if (conf[j].getId().equals(ID.trim()) && conf[j].isChecked()) {
                         conf[j].add_value(arr.getJSONObject(i).getString("Temp"));
                         conf[j].add_time_stamp(arr.getJSONObject(i).getString("Time"));
+
                     }
                 }
 
@@ -539,16 +623,40 @@ public class Interface {
         }
     }
 
+    public int getMaxValue(Config[] conf) {
+        // Fetch_Data();
+        int maxValue = conf[0].getValue().size();
+
+        location = 0;
+
+        for (int i = 1; i < index; i++) {
+
+            if (conf[i].getValue().size() > maxValue) {
+
+                maxValue = conf[i].getValue().size();
+                location = i;
+            }
+        }
+        return location;
+    }
+
+    public void get_size() {
+
+        sizes.clear();
+        for (int i = 0; i < index; i++) {
+            sizes.add(conf[i].getValue().size() - 1);
+        }
+    }
+
     public void live_data() {
         try {
+            int loca = getMaxValue(conf);
             //Display in JTable
             tableModel = new DefaultTableModel();
-            tableModel.addColumn("Time Stamp", conf[0].getTime_stamps());
+            tableModel.addColumn("Time Stamp", conf[loca].getTime_stamps());
             for (int i = 0; i < index; i++) {
                 if (conf[i].isChecked()) {
                     tableModel.addColumn(col[i], conf[i].getValue());
-
-
                 }
 
             }

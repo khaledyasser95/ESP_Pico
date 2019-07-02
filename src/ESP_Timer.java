@@ -8,6 +8,7 @@ public class ESP_Timer {
             public void run() {
                 x.Fetch_Data();
                 x.live_data();
+                x.edit_field();
             }
         };
         Timer timer = new Timer("Timer");
@@ -23,6 +24,16 @@ public class ESP_Timer {
         };
         Timer timer = new Timer("Timer");
         timer.scheduleAtFixedRate(repeatedTask, delay, period);
+    }
+
+    void Check_if_dis(Interface x) {
+        TimerTask repeatedTask = new TimerTask() {
+            public void run() {
+                x.get_size();
+            }
+        };
+        Timer timer = new Timer("Timer");
+        timer.scheduleAtFixedRate(repeatedTask, 10000L, 10000L);
     }
 
     void Average_every_min(Interface x) {

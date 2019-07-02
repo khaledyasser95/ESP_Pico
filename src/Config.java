@@ -85,8 +85,19 @@ public class Config {
         return value;
     }
 
+    public Object getValue_in(int loc) {
+        try {
+            return value.get(loc);
+        } catch (Exception e) {
+            return 0;
+        }
+
+    }
+
     public Object getValue_last() {
-        return value.get(value.size() - 1);
+        if (value.size() > 0)
+            return value.get(value.size() - 1);
+        return 0;
     }
 
     public Vector getTime_stamps() {
